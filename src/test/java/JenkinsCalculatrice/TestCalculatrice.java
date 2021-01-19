@@ -1,12 +1,11 @@
 package test.java.JenkinsCalculatrice;
 
-import static org.junit.Assert.*;
 
-import org.junit.Test;
+import junit.framework.*;
 
-public class TestCalculatrice {
+public class TestCalculatrice extends TestCase{
 
-	@Test
+	
 	public void test() {
 		fail("Not yet implemented");
 	}
