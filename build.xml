@@ -5,39 +5,32 @@
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. --><project basedir="." default="build" name="JenkinsCalculatrice">
     <property environment="env"/>
+    <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="14"/>
     <property name="source" value="14"/>
     <path id="JenkinsCalculatrice.classpath">
         <pathelement location="bin"/>
+        <pathelement location="junit-4.13.1.jar"/>
+    </path>
+    <path id="run.TestCalculatrice.classpath">
+        <path refid="JenkinsCalculatrice.classpath"/>
+        <pathelement location="junit-4.13.1.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
     </target>
-    <target name="-pre-jar">
-		<mkdir dir="${build.test.classes.dir}"/>
-    	<javac classpath="${javac.test.classpath}" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
-    	<path id="classpath.test">
-    		<pathelement location="./junit-4.10.jar" />
-    		<pathelement location="${build.test.classes.dir}" />
-    		<pathelement location="${build.classes.dir}" />
-    	</path>
-    	<junit haltonerror="true" haltonfailure="true">
-    		<classpath refid="classpath.test" />
-    		<formatter type="brief" usefile="false" />
-    		<test name="javab3.NewTestSuite" />
-    	</junit>
-    </target>
     <target name="clean">
         <delete dir="bin"/>
     </target>
-    <target depends="clean" name="cleanall"/>
+    <target depends="clean" name="cleanall">
+        <delete dir="junit"/>
+    </target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
@@ -48,17 +41,21 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
+    <target name="TestCalculatrice" depends="build">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="test.java.JenkinsCalculatrice.TestCalculatrice" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="run.TestCalculatrice.classpath"/>
+        </junit>
     </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
+    <target name="junitreport" depends="TestCalculatrice" >
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
     </target>
 </project>

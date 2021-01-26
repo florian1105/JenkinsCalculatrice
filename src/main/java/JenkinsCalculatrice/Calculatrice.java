@@ -1,9 +1,9 @@
 package main.java.JenkinsCalculatrice;
 
 public class Calculatrice {
-    private char[] operations={'+','-','*','/'};
+    private static char[] operations={'+','-','*','/'};
 
-    public double operation(String chaine) throws Exception
+    public static double operation(String chaine) throws Exception
     {
        //On cherche à savoir de quelle opération il s'agit
        //Pas d'opération trouvée
